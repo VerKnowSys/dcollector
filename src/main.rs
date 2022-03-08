@@ -7,18 +7,23 @@ extern crate diesel;
 pub mod models;
 pub mod postgres;
 pub mod schema;
+pub mod systeminfo;
 pub mod ups;
 
 
 use lockfile::Lockfile;
-use std::fs::remove_file;
-use std::io::Write;
-use std::process::exit;
-use std::{env, process, thread, time::Duration};
+use std::{
+    env,
+    fs::remove_file,
+    io::Write,
+    process::{self, exit},
+    thread,
+    time::Duration,
+};
 
 use crate::{
     models::UpsStat,
-    postgres::{establish_postgres_connection, print_entries, store_ups_entry},
+    postgres::{establish_postgres_connection, print_entries, store_entries},
     ups::ups_stats_entry,
 };
 use dotenv::dotenv;
@@ -48,7 +53,7 @@ fn main() {
 
     let pg_conn = establish_postgres_connection();
     loop {
-        store_ups_entry(&pg_conn)
+        store_entries(&pg_conn)
             .and(print_entries(&pg_conn, 1))
             .expect("Processing should work properly");
         thread::sleep(Duration::from_secs(sleep));

@@ -2,9 +2,7 @@
 use crate::UpsStat;
 use nut_client::blocking::Connection as NutConnection;
 use nut_client::ConfigBuilder;
-use std::convert::TryInto;
-use std::env;
-use std::time::SystemTime;
+use std::{convert::TryInto, env, time::SystemTime};
 
 
 pub fn ups_stats_entry() -> UpsStat {
