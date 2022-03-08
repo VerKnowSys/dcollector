@@ -15,9 +15,11 @@ pub fn establish_postgres_connection() -> PgConnection {
 
 
 pub fn store_ups_entry(pg_connection: &PgConnection) -> Result<UpsStat, Error> {
+    // pg_connection.transaction(|| {
     diesel::insert_into(ups_stats)
         .values(ups_stats_entry())
         .get_result::<UpsStat>(pg_connection)
+    // })
 }
 
 
@@ -31,7 +33,12 @@ pub fn print_entries(
         .order(time.desc())
         .load::<UpsStat>(pg_connection)?;
 
-    println!("Displaying {} entries", results.len());
+    let len = results.len();
+    println!(
+        "Displaying {} {}",
+        len,
+        if len > 1 { "entries" } else { "entry" }
+    );
     for entry in &results {
         println!("{}", entry);
     }
