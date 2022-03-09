@@ -6,7 +6,7 @@ use crate::{
         ups_stats::{dsl::ups_stats, time as ups_stats_time},
     },
     systeminfo::{sys_process_entries, sys_stats_entry},
-    ups_stats_entry,
+    ups_stats_entry, *,
 };
 use diesel::{
     pg::PgConnection,
@@ -16,6 +16,7 @@ use diesel::{
 use std::env;
 
 
+#[instrument]
 pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
@@ -54,32 +55,39 @@ pub fn print_entries(pg_connection: &PgConnection, amount: usize) -> Result<(), 
         .order(sys_stats_time.desc())
         .load::<SysStat>(pg_connection)?;
 
-    let _results_procs = proc_stats
+    let results_procs = proc_stats
         .limit(amount as i64)
         .order(proc_stats_time.desc())
         .load::<ProcStat>(pg_connection)?;
-    // for entry in &results_procs {
-    //     println!("Proc: {}", entry);
-    // }
+
+    let len = results_procs.len();
+    debug!(
+        "Displaying {} Process {}",
+        len,
+        if len > 1 { "entries" } else { "entry" }
+    );
+    for entry in &results_procs {
+        debug!("Processes: {}", entry);
+    }
 
     let len = results.len();
-    println!(
+    debug!(
         "Displaying {} UPS {}",
         len,
         if len > 1 { "entries" } else { "entry" }
     );
     for entry in &results {
-        println!("{}", entry);
+        debug!("UPS: {}", entry);
     }
 
     let len = results_system.len();
-    println!(
+    debug!(
         "Displaying {} system {}",
         len,
         if len > 1 { "entries" } else { "entry" }
     );
     for entry in &results_system {
-        println!("{}", entry);
+        debug!("System: {}", entry);
     }
 
     Ok(())

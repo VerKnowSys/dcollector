@@ -1,3 +1,8 @@
+
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+
 #[macro_use]
 extern crate serde_derive;
 
@@ -10,6 +15,8 @@ pub mod schema;
 pub mod systeminfo;
 pub mod ups;
 
+pub use tracing::{debug, error, info, instrument, warn};
+use tracing_subscriber::{fmt, EnvFilter};
 
 use lockfile::Lockfile;
 use std::{
@@ -21,6 +28,7 @@ use std::{
     time::Duration,
 };
 
+
 use crate::{
     models::UpsStat,
     postgres::{establish_postgres_connection, print_entries, store_entries},
@@ -29,7 +37,26 @@ use crate::{
 use dotenv::dotenv;
 
 
+#[instrument]
+fn initialize() {
+    let env_log = match EnvFilter::try_from_env("DCOLLECTOR_LOG") {
+        Ok(env_value_from_env) => env_value_from_env,
+        Err(_) => EnvFilter::from("info"),
+    };
+    fmt()
+        .compact()
+        .with_thread_names(false)
+        .with_thread_ids(false)
+        .with_ansi(true)
+        .with_env_filter(env_log)
+        .with_filter_reloading()
+        .init();
+}
+
+
+#[instrument]
 fn main() {
+    initialize();
     dotenv().ok();
 
     let pidfile = env::var("PID_FILE").unwrap_or_else(|_| String::from("dcollector.pid"));
@@ -51,13 +78,20 @@ fn main() {
         .parse::<u64>()
         .unwrap_or(10);
 
+    info!(
+        "Starting dcollector, version: {}",
+        env!("CARGO_PKG_VERSION")
+    );
+
+    let mut iteration = 0u64;
     loop {
-        println!("----- Iteration starting -----");
+        iteration += 1;
+        info!("Iteration #{} is starting…", iteration);
         // Continously attempt to make connection with the configured TimescaleDB:
         let pg_conn = match establish_postgres_connection() {
             Ok(connection) => connection,
             Err(error) => {
-                println!(
+                error!(
                     "Sleeping 5s while we experience PostgreSQL TimescaleDB! Error: {}",
                     error
                 );
@@ -67,9 +101,9 @@ fn main() {
         };
 
         match store_entries(&pg_conn).and(print_entries(&pg_conn, 1)) {
-            Ok(_) => println!("----- Iteration successful -----"),
+            Ok(_) => info!("Iteration #{} was successful.", iteration),
             Err(error) => {
-                println!("----- Iteration error: {} -----", error);
+                error!("Iteration #{} failed with error: {}", iteration, error);
                 continue;
             }
         }

@@ -1,4 +1,7 @@
-use crate::models::{ProcStat, SysStat};
+use crate::{
+    models::{ProcStat, SysStat},
+    *,
+};
 use std::{
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -6,6 +9,7 @@ use std::{
 use sysinfo::{ProcessExt, ProcessorExt, System, SystemExt};
 
 
+#[instrument]
 pub fn sys_stats_entry() -> SysStat {
     let mut sys = System::new_all();
     sys.refresh_all();
@@ -36,6 +40,7 @@ pub fn sys_stats_entry() -> SysStat {
 }
 
 
+#[instrument]
 pub fn sys_process_entries() -> Vec<ProcStat> {
     let mut sys = System::new_all();
     sys.refresh_all();

@@ -1,4 +1,7 @@
-use crate::schema::{proc_stats, sys_stats, ups_stats};
+use crate::{
+    schema::{proc_stats, sys_stats, ups_stats},
+    *,
+};
 use chrono::{DateTime, Local, TimeZone};
 
 use core::fmt;
@@ -60,6 +63,7 @@ pub struct UpsStat {
 
 
 /// Convert SystemTime to chrono DateTime
+#[instrument]
 fn system_time_to_date_time(t: SystemTime) -> DateTime<Local> {
     let (sec, nsec) = match t.duration_since(UNIX_EPOCH) {
         Ok(dur) => (dur.as_secs() as i64, dur.subsec_nanos()),

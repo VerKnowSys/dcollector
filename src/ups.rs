@@ -1,4 +1,4 @@
-use crate::UpsStat;
+use crate::{UpsStat, *};
 use nut_client::{blocking::Connection as NutConnection, ConfigBuilder, Variable};
 use std::{convert::TryInto, env, time::SystemTime};
 
@@ -19,7 +19,7 @@ pub fn ups_stats_entry() -> UpsStat {
                     nut_connection
                         .get_var(&nut_ups, "ups.model")
                         .unwrap_or_else(|err| {
-                            println!("Error: No UPS model available?: {}", err);
+                            error!("Error: No UPS model available?: {}", err);
                             Variable::Other((String::from("ups.model"), String::new()))
                         })
                         .value(),
@@ -28,7 +28,7 @@ pub fn ups_stats_entry() -> UpsStat {
                     nut_connection
                         .get_var(&nut_ups, "ups.status")
                         .unwrap_or_else(|err| {
-                            println!("Error: No UPS status available?: {}", err);
+                            error!("Error: No UPS status available?: {}", err);
                             Variable::Other((String::from("ups.status"), String::new()))
                         })
                         .value(),
@@ -36,7 +36,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 load: nut_connection
                     .get_var(&nut_ups, "ups.load")
                     .unwrap_or_else(|err| {
-                        println!("Error: No UPS load available?: {}", err);
+                        error!("Error: No UPS load available?: {}", err);
                         Variable::Other((String::from("ups.load"), String::new()))
                     })
                     .value()
@@ -45,7 +45,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 input_frequency: nut_connection
                     .get_var(&nut_ups, "input.frequency")
                     .unwrap_or_else(|err| {
-                        println!("Error: No UPS input frequency available?: {}", err);
+                        error!("Error: No UPS input frequency available?: {}", err);
                         Variable::Other((String::from("input.frequency"), String::new()))
                     })
                     .value()
@@ -54,7 +54,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 input_voltage: nut_connection
                     .get_var(&nut_ups, "input.voltage")
                     .unwrap_or_else(|err| {
-                        println!("Error: No UPS input voltage available?: {}", err);
+                        error!("Error: No UPS input voltage available?: {}", err);
                         Variable::Other((String::from("input.voltage"), String::new()))
                     })
                     .value()
@@ -63,7 +63,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 battery_charge: nut_connection
                     .get_var(&nut_ups, "battery.charge")
                     .unwrap_or_else(|err| {
-                        println!("Error: No UPS battery charge available?: {}", err);
+                        error!("Error: No UPS battery charge available?: {}", err);
                         Variable::Other((String::from("battery.charge"), String::new()))
                     })
                     .value()
@@ -72,7 +72,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 battery_voltage: nut_connection
                     .get_var(&nut_ups, "battery.voltage")
                     .unwrap_or_else(|err| {
-                        println!("Error: No UPS battery voltage available?: {}", err);
+                        error!("Error: No UPS battery voltage available?: {}", err);
                         Variable::Other((String::from("battery.voltage"), String::new()))
                     })
                     .value()
@@ -81,8 +81,8 @@ pub fn ups_stats_entry() -> UpsStat {
             }
         }
         Err(error) => {
-            println!(
-                "Nut connection should work for UPS: {}@{}. Error: {}",
+            error!(
+                "Failed connecting to UPS: {}@{}. Error: {}",
                 nut_ups, nut_host, error
             );
             UpsStat {
