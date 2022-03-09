@@ -51,11 +51,28 @@ fn main() {
         .parse::<u64>()
         .unwrap_or(60);
 
-    let pg_conn = establish_postgres_connection();
     loop {
-        store_entries(&pg_conn)
-            .and(print_entries(&pg_conn, 1))
-            .expect("Processing should work properly");
+        println!("----- Iteration starting -----");
+        // Continously attempt to make connection with the configured TimescaleDB:
+        let pg_conn = match establish_postgres_connection() {
+            Ok(connection) => connection,
+            Err(error) => {
+                println!(
+                    "Sleeping 5s while we experience PostgreSQL TimescaleDB! Error: {}",
+                    error
+                );
+                thread::sleep(Duration::from_secs(5));
+                continue;
+            }
+        };
+
+        match store_entries(&pg_conn).and(print_entries(&pg_conn, 1)) {
+            Ok(_) => println!("----- Iteration successful -----"),
+            Err(error) => {
+                println!("----- Iteration error: {} -----", error);
+                continue;
+            }
+        }
         thread::sleep(Duration::from_secs(sleep));
     }
 }
