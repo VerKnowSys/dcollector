@@ -13,51 +13,88 @@ use std::{
 };
 
 
+/// ProcStat holds one row of user processes with resources usage
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct ProcStat {
+    /// PK
     pub time: SystemTime,
+    /// Holds time, when process started
     pub start_time: Option<SystemTime>,
+    /// Holds abs path to executable
     pub exe: Option<String>,
+    /// Holds executable full command line
     pub cmd: Option<String>,
+    /// Hold process name
     pub name: Option<String>,
+    /// Holds disk read since last refresh
     pub disk_read: Option<i64>,
+    /// Holds total disk read since process started
     pub disk_read_total: Option<i64>,
+    /// Holds disk written since last refresh
     pub disk_written: Option<i64>,
+    /// Holds disk written since process started
     pub disk_written_total: Option<i64>,
+    /// Holds cpu usage of the process
     pub cpu_usage: Option<f32>,
+    /// Holds memory usage of the process
     pub rss: Option<i64>,
+    /// Holds process status
     pub status: Option<String>,
 }
 
 
+/// SysStat holds one row of system stats
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct SysStat {
+    /// PK
     pub time: SystemTime,
+    /// Holds system name
     pub name: Option<String>,
+    /// Holds kernel version
     pub kernel_version: Option<String>,
+    /// Holds system version
     pub os_version: Option<String>,
+    /// Holds machine's host name
     pub host_name: Option<String>,
+    /// Holds amount of processors on the machine
     pub processors: Option<i32>,
+    /// Holds total memory available on the machine
     pub total_memory: Option<i32>,
+    /// Holds memory allocated/ used on the machine
     pub used_memory: Option<i32>,
+    /// Holds total swap available on the machnie
     pub total_swap: Option<i32>,
+    /// Holds swap used on the machine
     pub used_swap: Option<i32>,
+    /// Holds load average one-mins
     pub load_one: Option<f64>,
+    /// Holds load average five-mins
     pub load_five: Option<f64>,
+    /// Holds load average fifteen-mins
     pub load_fifteen: Option<f64>,
+    /// Holds total cpu usage on the system
     pub cpu_usage: Option<f32>,
 }
 
 
+/// upsStat holds one row of UPS data fetched from Nut server
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct UpsStat {
+    /// PK
     pub time: SystemTime,
+    /// Holds UPS model name
     pub model: Option<String>,
+    /// Holds UPS status
     pub status: Option<String>,
+    /// Holds UPS load
     pub load: Option<i32>,
+    /// Holds UPS input frequency
     pub input_frequency: Option<f64>,
+    /// Holds UPS input voltage
     pub input_voltage: Option<f64>,
+    /// Holds UPS battery charge
     pub battery_charge: Option<i32>,
+    /// Holds UPS battery voltage
     pub battery_voltage: Option<f64>,
 }
 

@@ -47,8 +47,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    proc_stats,
-    sys_stats,
-    ups_stats,
-);
+allow_tables_to_appear_in_same_query!(proc_stats, sys_stats, ups_stats,);

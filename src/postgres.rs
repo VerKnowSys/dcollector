@@ -16,6 +16,7 @@ use diesel::{
 use std::env;
 
 
+/// Establish connection with TimescaleDB
 #[instrument]
 pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -23,6 +24,7 @@ pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> 
 }
 
 
+/// Store all entries (Systat, UpsStat and ProcStat) in a single RDBMS transaction
 pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
     pg_connection.transaction(|| {
         diesel::insert_into(sys_stats)
@@ -43,6 +45,7 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
 }
 
 
+/// Print "amount" of entries from RDBMS
 pub fn print_entries(pg_connection: &PgConnection, amount: usize) -> Result<(), Error> {
     let results = ups_stats
         // .filter(model.eq("1600 SINUS"))

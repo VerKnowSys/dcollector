@@ -9,6 +9,7 @@ use std::{
 use sysinfo::{ProcessExt, ProcessorExt, System, SystemExt};
 
 
+/// Read and fill SysStat entry with system stats
 #[instrument]
 pub fn sys_stats_entry() -> SysStat {
     let mut sys = System::new_all();
@@ -40,6 +41,7 @@ pub fn sys_stats_entry() -> SysStat {
 }
 
 
+/// Read and fill SysStat entry with stats from user processes
 #[instrument]
 pub fn sys_process_entries() -> Vec<ProcStat> {
     let mut sys = System::new_all();

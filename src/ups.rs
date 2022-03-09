@@ -3,6 +3,7 @@ use nut_client::{blocking::Connection as NutConnection, ConfigBuilder, Variable}
 use std::{convert::TryInto, env, time::SystemTime};
 
 
+/// Read and fill NutStat entry with UPS stats
 pub fn ups_stats_entry() -> UpsStat {
     let nut_host = env::var("NUT_HOST").unwrap_or_else(|_| "vks0".to_string());
     let nut_ups = env::var("NUT_UPS").unwrap_or_else(|_| "eta".to_string());
