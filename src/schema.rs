@@ -10,6 +10,10 @@ table! {
         used_memory -> Nullable<Int4>,
         total_swap -> Nullable<Int4>,
         used_swap -> Nullable<Int4>,
+        load_one -> Nullable<Float8>,
+        load_five -> Nullable<Float8>,
+        load_fifteen -> Nullable<Float8>,
+        cpu_usage -> Nullable<Float4>,
     }
 }
 

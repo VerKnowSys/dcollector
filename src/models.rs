@@ -22,6 +22,10 @@ pub struct SysStat {
     pub used_memory: Option<i32>,
     pub total_swap: Option<i32>,
     pub used_swap: Option<i32>,
+    pub load_one: Option<f64>,
+    pub load_five: Option<f64>,
+    pub load_fifteen: Option<f64>,
+    pub cpu_usage: Option<f32>,
 }
 
 
@@ -61,9 +65,13 @@ impl Display for SysStat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Time: {}, Name: {}, Kernel version: {}, OS vesion: {}, Host name: {}, Processors: {}, Total memory: {}KiB, Used memory: {}KiB, Total swap: {}KiB, Used swap: {}KiB",
+            "Time: {}, Name: {}, CPU usage: {}, Load: {} {} {}, Kernel version: {}, OS vesion: {}, Host name: {}, Processors: {}, Total memory: {}KiB, Used memory: {}KiB, Total swap: {}KiB, Used swap: {}KiB",
             system_time_to_date_time(self.time),
             self.name.clone().unwrap_or_default(),
+            self.cpu_usage.unwrap_or_default(),
+            self.load_one.unwrap_or_default(),
+            self.load_five.unwrap_or_default(),
+            self.load_fifteen.unwrap_or_default(),
             self.kernel_version.clone().unwrap_or_default(),
             self.os_version.clone().unwrap_or_default(),
             self.host_name.clone().unwrap_or_default(),
