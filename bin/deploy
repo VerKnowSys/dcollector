@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ "root" = "${USER}" ]; then
+    printf "Don't run bin/deploy as root!\n"
+    exit 1
+fi
+
+cargo build --release \
+    && patchelf --set-rpath /Software/Postgresql13/lib target/release/dcollector \
+    && mv .env .env.dev \
+    && cp /Services/Dcollector/.env ./ \
+    && diesel migration run \
+    && mv .env.dev .env \
+    && igni dcollector stop \
+    && install -v target/release/dcollector /Services/Dcollector/bin/dcollector \
+    && igni dcollector start \
+    && printf "Deploy completed\n"
