@@ -1,4 +1,4 @@
-use crate::schema::{sys_stats, ups_stats};
+use crate::schema::{proc_stats, sys_stats, ups_stats};
 use chrono::{DateTime, Local, TimeZone};
 
 use core::fmt;
@@ -8,6 +8,23 @@ use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},
 };
+
+
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+pub struct ProcStat {
+    pub time: SystemTime,
+    pub start_time: Option<SystemTime>,
+    pub exe: Option<String>,
+    pub cmd: Option<String>,
+    pub name: Option<String>,
+    pub disk_read: Option<i64>,
+    pub disk_read_total: Option<i64>,
+    pub disk_written: Option<i64>,
+    pub disk_written_total: Option<i64>,
+    pub cpu_usage: Option<f32>,
+    pub rss: Option<i64>,
+    pub status: Option<String>,
+}
 
 
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
@@ -58,6 +75,32 @@ fn system_time_to_date_time(t: SystemTime) -> DateTime<Local> {
         }
     };
     Local.timestamp(sec, nsec)
+}
+
+
+impl Display for ProcStat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let start_time_str = if let Some(a_start_time) = self.start_time {
+            system_time_to_date_time(a_start_time).to_string()
+        } else {
+            String::new()
+        };
+        write!(
+            f,
+            "Name: {name}, Exe: {exe}, Cmd: {cmd}, Status: {status}, Start time: {start_time}, CPU Usage: {cpu_usage}, Resident Memory: {rss}KiB, Disk Read: {disk_read} / {disk_read_total}, Disk Write: {disk_written} / {disk_written_total},",
+            exe = self.exe.clone().unwrap_or_default(),
+            cmd = self.cmd.clone().unwrap_or_default(),
+            name = self.name.clone().unwrap_or_default(),
+            disk_read = self.disk_read.unwrap_or_default(),
+            disk_read_total = self.disk_read_total.unwrap_or_default(),
+            disk_written = self.disk_written.unwrap_or_default(),
+            disk_written_total = self.disk_written_total.unwrap_or_default(),
+            cpu_usage = self.cpu_usage.unwrap_or_default(),
+            rss = self.rss.unwrap_or_default(),
+            status = self.status.clone().unwrap_or_default(),
+            start_time = start_time_str,
+        )
+    }
 }
 
 

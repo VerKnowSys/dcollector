@@ -47,9 +47,9 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     let sleep = env::var("SLEEP_SECONDS")
-        .unwrap_or_else(|_| String::from("60"))
+        .unwrap_or_else(|_| String::from("10"))
         .parse::<u64>()
-        .unwrap_or(60);
+        .unwrap_or(10);
 
     loop {
         println!("----- Iteration starting -----");

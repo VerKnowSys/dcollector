@@ -1,4 +1,21 @@
 table! {
+    proc_stats (time) {
+        time -> Timestamp,
+        start_time -> Nullable<Timestamp>,
+        exe -> Nullable<Text>,
+        cmd -> Nullable<Text>,
+        name -> Nullable<Text>,
+        disk_read -> Nullable<Int8>,
+        disk_read_total -> Nullable<Int8>,
+        disk_written -> Nullable<Int8>,
+        disk_written_total -> Nullable<Int8>,
+        cpu_usage -> Nullable<Float4>,
+        rss -> Nullable<Int8>,
+        status -> Nullable<Text>,
+    }
+}
+
+table! {
     sys_stats (time) {
         time -> Timestamp,
         name -> Nullable<Text>,
@@ -31,6 +48,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    proc_stats,
     sys_stats,
     ups_stats,
 );
