@@ -15,4 +15,4 @@ serde_derive = "1.0.136"
 sysinfo = "0.23.5"
 mimalloc = "0.1.28"
 tracing = { version = "0.1.32", features = ["log", "attributes", "std"] }
-tracing-subscriber = { version = "0.2", features = ["registry", "fmt"] }
+tracing-subscriber = { version = "0.3.9", features = ["registry", "fmt", "env-filter"] }
