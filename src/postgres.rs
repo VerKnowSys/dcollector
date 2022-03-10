@@ -14,6 +14,7 @@ use diesel::{
     result::{ConnectionError, Error},
 };
 use std::env;
+use sysinfo::{System, SystemExt};
 
 
 /// Establish connection with TimescaleDB
@@ -27,8 +28,12 @@ pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> 
 /// Store all entries (Systat, UpsStat and ProcStat) in a single RDBMS transaction
 pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
     pg_connection.transaction(|| {
+        // read data from system once:
+        let mut sys = System::new_all();
+        sys.refresh_all();
+
         diesel::insert_into(sys_stats)
-            .values(sys_stats_entry())
+            .values(sys_stats_entry(&sys))
             .get_result::<SysStat>(pg_connection)?;
 
         diesel::insert_into(ups_stats)
@@ -37,7 +42,7 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
 
         // insert batch of entries
         diesel::insert_into(proc_stats)
-            .values(sys_process_entries())
+            .values(sys_process_entries(&sys))
             .execute(pg_connection)?;
 
         Ok(())

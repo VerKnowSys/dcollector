@@ -11,13 +11,9 @@ use sysinfo::{ProcessExt, ProcessorExt, System, SystemExt};
 
 /// Read and fill SysStat entry with system stats
 #[instrument]
-pub fn sys_stats_entry() -> SysStat {
-    let mut sys = System::new_all();
-    sys.refresh_all();
-
+pub fn sys_stats_entry(sys: &System) -> SysStat {
     let cpu = sys.global_processor_info();
     let load_avg = sys.load_average();
-    let (one, five, fifteen) = (load_avg.one, load_avg.five, load_avg.fifteen);
 
     SysStat {
         time: SystemTime::now(),
@@ -27,9 +23,9 @@ pub fn sys_stats_entry() -> SysStat {
         host_name: sys.host_name(),
 
         cpu_usage: Some(cpu.cpu_usage()),
-        load_one: Some(one),
-        load_five: Some(five),
-        load_fifteen: Some(fifteen),
+        load_one: Some(load_avg.one),
+        load_five: Some(load_avg.five),
+        load_fifteen: Some(load_avg.fifteen),
 
         processors: Some(sys.processors().len() as i32),
 
@@ -43,10 +39,7 @@ pub fn sys_stats_entry() -> SysStat {
 
 /// Read and fill SysStat entry with stats from user processes
 #[instrument]
-pub fn sys_process_entries() -> Vec<ProcStat> {
-    let mut sys = System::new_all();
-    sys.refresh_all();
-
+pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
     let mut processes = vec![];
     for process in sys.processes().values() {
         let disk_usage = process.disk_usage();
@@ -58,7 +51,7 @@ pub fn sys_process_entries() -> Vec<ProcStat> {
         } else {
             Some(maybe_time)
         };
-        processes.push(ProcStat {
+        let proc_stat = ProcStat {
             time: SystemTime::now(),
             exe: Some(process.exe().to_string_lossy().to_string()),
             cmd: Some(process.cmd().join(" ")),
@@ -71,7 +64,9 @@ pub fn sys_process_entries() -> Vec<ProcStat> {
             rss: Some(process.memory() as i64),
             status: Some(process.status().to_string()),
             start_time,
-        });
+        };
+        processes.push(proc_stat);
+
         // Sleep 10ms to avoid time PK duplication with a lot of processes running in system:
         thread::sleep(Duration::from_millis(10));
     }
