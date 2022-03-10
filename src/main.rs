@@ -82,7 +82,7 @@ use dotenv::dotenv;
 /// Initialize logger and tracingformatter
 #[instrument]
 fn initialize() {
-    let env_log = match EnvFilter::try_from_env("DCOLLECTOR_LOG") {
+    let env_log = match EnvFilter::try_from_env("LOG") {
         Ok(env_value_from_env) => env_value_from_env,
         Err(_) => EnvFilter::from("info"),
     };
