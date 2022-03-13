@@ -60,15 +60,7 @@ pub mod ups;
 pub use tracing::{debug, error, info, instrument, warn};
 use tracing_subscriber::{fmt, EnvFilter};
 
-use lockfile::Lockfile;
-use std::{
-    env,
-    fs::remove_file,
-    io::Write,
-    process::{self, exit},
-    thread,
-    time::Duration,
-};
+use std::{env, thread, time::Duration};
 
 
 use crate::{
@@ -102,20 +94,6 @@ fn initialize() {
 fn main() {
     initialize();
     dotenv().ok();
-
-    let pidfile = env::var("PID_FILE").unwrap_or_else(|_| String::from("dcollector.pid"));
-    let mut lockfile = Lockfile::create(&pidfile)
-        .unwrap_or_else(|_| panic!("Couldn't obtain lockfile: {}!", pidfile));
-    let pidstr = format!("{}", process::id());
-    lockfile
-        .write_all(pidstr.as_bytes())
-        .expect("Couldn't write pid to a lock file");
-    ctrlc::set_handler(move || {
-        remove_file(pidfile.clone()).unwrap_or_default();
-        println!("Interrupted…");
-        exit(1);
-    })
-    .expect("Error setting Ctrl-C handler");
 
     let sleep = env::var("SLEEP_SECONDS")
         .unwrap_or_else(|_| String::from("10"))
