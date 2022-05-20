@@ -82,10 +82,7 @@ pub fn ups_stats_entry() -> UpsStat {
             }
         }
         Err(error) => {
-            error!(
-                "Failed connecting to UPS: {}@{}. Error: {}",
-                nut_ups, nut_host, error
-            );
+            debug!("Failed connecting to UPS: {nut_ups}@{nut_host}. Error: {error}");
             UpsStat::default()
         }
     }
