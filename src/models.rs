@@ -39,6 +39,26 @@ pub struct ProcStat {
 }
 
 
+impl Default for ProcStat {
+    fn default() -> ProcStat {
+        ProcStat {
+            time: SystemTime::now(),
+            start_time: None,
+            exe: None,
+            cmd: None,
+            name: None,
+            disk_read: None,
+            disk_read_total: None,
+            disk_written: None,
+            disk_written_total: None,
+            cpu_usage: None,
+            rss: None,
+            status: None,
+        }
+    }
+}
+
+
 /// SysStat holds one row of system stats
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct SysStat {
@@ -70,6 +90,28 @@ pub struct SysStat {
     pub load_fifteen: Option<f64>,
     /// Holds total cpu usage on the system
     pub cpu_usage: Option<f32>,
+}
+
+
+impl Default for SysStat {
+    fn default() -> SysStat {
+        SysStat {
+            time: SystemTime::now(),
+            name: None,
+            kernel_version: None,
+            os_version: None,
+            host_name: None,
+            processors: None,
+            total_memory: None,
+            used_memory: None,
+            total_swap: None,
+            used_swap: None,
+            load_one: None,
+            load_five: None,
+            load_fifteen: None,
+            cpu_usage: None,
+        }
+    }
 }
 
 
@@ -130,6 +172,22 @@ pub struct UpsStat {
     pub battery_charge: Option<i32>,
     /// Holds UPS battery voltage
     pub battery_voltage: Option<f64>,
+}
+
+
+impl Default for UpsStat {
+    fn default() -> UpsStat {
+        UpsStat {
+            time: SystemTime::now(),
+            model: None,
+            status: None,
+            load: None,
+            input_frequency: None,
+            input_voltage: None,
+            battery_charge: None,
+            battery_voltage: None,
+        }
+    }
 }
 
 
