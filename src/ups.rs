@@ -86,16 +86,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 "Failed connecting to UPS: {}@{}. Error: {}",
                 nut_ups, nut_host, error
             );
-            UpsStat {
-                time: SystemTime::now(),
-                model: None,
-                status: None,
-                load: None,
-                input_frequency: None,
-                input_voltage: None,
-                battery_charge: None,
-                battery_voltage: None,
-            }
+            UpsStat::default()
         }
     }
 }

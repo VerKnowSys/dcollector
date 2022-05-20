@@ -10,7 +10,7 @@ use std::{
 
 
 /// ProcStat holds one row of user processes with resources usage
-#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
 pub struct ProcStat {
     /// PK
     pub time: SystemTime,
@@ -60,7 +60,7 @@ impl Default for ProcStat {
 
 
 /// SysStat holds one row of system stats
-#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
 pub struct SysStat {
     /// PK
     pub time: SystemTime,
@@ -116,7 +116,7 @@ impl Default for SysStat {
 
 
 /// upsStat holds one row of UPS data fetched from Nut server
-#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
 pub struct DiskStat {
     /// PK
     pub time: SystemTime,
@@ -154,7 +154,7 @@ impl Default for DiskStat {
 
 
 /// upsStat holds one row of UPS data fetched from Nut server
-#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
 pub struct UpsStat {
     /// PK
     pub time: SystemTime,

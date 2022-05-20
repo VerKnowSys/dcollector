@@ -33,22 +33,81 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
         let mut sys = System::new_all();
         sys.refresh_all();
 
-        diesel::insert_into(sys_stats)
-            .values(sys_stats_entry(&sys))
-            .get_result::<SysStat>(pg_connection)?;
+        // prevent from storing default values. Skip write to the DB in that case:
 
-        diesel::insert_into(ups_stats)
-            .values(ups_stats_entry())
-            .get_result::<UpsStat>(pg_connection)?;
+        // System stats (a single entry)
+        let a_sys_stats_entry = sys_stats_entry(&sys);
+        let default_sys_entry = SysStat {
+            time: a_sys_stats_entry.time,
+            ..SysStat::default()
+        };
+        if a_sys_stats_entry != default_sys_entry {
+            diesel::insert_into(sys_stats)
+                .values(a_sys_stats_entry)
+                .get_result::<SysStat>(pg_connection)?;
+        } else {
+            debug!("Empty SysStat entry. Skipping DB store.");
+        }
 
-        // insert batch of entries
-        diesel::insert_into(disk_stats)
-            .values(disk_stats_entry(&sys))
-            .execute(pg_connection)?;
+        // UPS stats (a single entry)
+        let a_ups_stats_entry = ups_stats_entry();
+        let default_ups_entry = UpsStat {
+            time: a_ups_stats_entry.time,
+            ..UpsStat::default()
+        };
+        if a_ups_stats_entry != default_ups_entry {
+            diesel::insert_into(ups_stats)
+                .values(a_ups_stats_entry)
+                .get_result::<UpsStat>(pg_connection)?;
+        } else {
+            debug!("Empty UpsStat entry. Skipping DB store.");
+        }
 
-        diesel::insert_into(proc_stats)
-            .values(sys_process_entries(&sys))
-            .execute(pg_connection)?;
+        // Disk stats (multiple entries)
+        let a_disk_stats_entries = disk_stats_entry(&sys)
+            .into_iter()
+            .filter_map(|entry| {
+                let default_disk_entry = DiskStat {
+                    time: entry.time,
+                    ..DiskStat::default()
+                };
+                if entry != default_disk_entry {
+                    Some(entry)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        if !a_disk_stats_entries.is_empty() {
+            diesel::insert_into(disk_stats)
+                .values(a_disk_stats_entries)
+                .execute(pg_connection)?;
+        } else {
+            debug!("Empty DiskStat entry. Skipping DB store.");
+        }
+
+        // Processes stats (multiple entries)
+        let a_proc_stats_entries = sys_process_entries(&sys)
+            .into_iter()
+            .filter_map(|entry| {
+                let default_proc_entry = ProcStat {
+                    time: entry.time,
+                    ..ProcStat::default()
+                };
+                if entry != default_proc_entry {
+                    Some(entry)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        if !a_proc_stats_entries.is_empty() {
+            diesel::insert_into(proc_stats)
+                .values(a_proc_stats_entries)
+                .execute(pg_connection)?;
+        } else {
+            debug!("Empty ProcStat entry. Skipping DB store.");
+        }
 
         Ok(())
     })
