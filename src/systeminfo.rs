@@ -128,10 +128,12 @@ pub fn disk_stats_entry(sys: &System) -> Vec<DiskStat> {
                 trace!("smartctl command successful, the parsed object: {smartctl_obj:#?}");
 
                 let mut disk_stat = DiskStat {
+                    name: Some(disk_device),
+                    host_name: sys.host_name(),
                     temperature: Some(
                         smartctl_obj["temperature"]["current"]
                             .as_f64()
-                            .unwrap_or(0.0) as f32,
+                            .unwrap_or(0.0),
                     ),
                     ..DiskStat::default()
                 };
