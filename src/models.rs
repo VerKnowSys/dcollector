@@ -95,6 +95,22 @@ pub struct DiskStat {
 }
 
 
+impl Default for DiskStat {
+    fn default() -> DiskStat {
+        DiskStat {
+            time: SystemTime::now(),
+            name: None,
+            temperature: None,
+            crc_errors: None,
+            seek_time: None,
+            seek_error_rate: None,
+            throughput: None,
+            read_error_rate: None,
+        }
+    }
+}
+
+
 /// upsStat holds one row of UPS data fetched from Nut server
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct UpsStat {

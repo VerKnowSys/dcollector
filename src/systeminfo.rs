@@ -126,55 +126,50 @@ pub fn disk_stats_entry(sys: &System) -> Vec<DiskStat> {
                     serde_json::from_str(data.as_str()).unwrap_or_default();
                 trace!("smartctl command successful, the parsed object: {smartctl_obj:#?}");
 
-                let temperature = smartctl_obj["temperature"]["current"]
-                    .as_f64()
-                    .unwrap_or(0.0) as f32;
-                let mut crc_errors = 0i64;
-                let mut seek_time = 0i64;
-                let mut seek_error_rate = 0i64;
-                let mut read_error_rate = 0i64;
-                let mut throughput = 0i64;
+                let mut disk_stat = DiskStat {
+                    temperature: Some(
+                        smartctl_obj["temperature"]["current"]
+                            .as_f64()
+                            .unwrap_or(0.0) as f32,
+                    ),
+                    ..DiskStat::default()
+                };
 
                 for attr in smartctl_obj["ata_smart_attributes"]["table"]
                     .as_array()
                     .unwrap()
                 {
-                    // seek_error_rate => Seek_Error_Rate
                     if attr["name"] == "Seek_Error_Rate" {
-                        seek_error_rate = attr["raw"]["value"].as_i64().unwrap_or(0);
+                        // seek_error_rate => Seek_Error_Rate
+                        disk_stat.seek_error_rate =
+                            Some(attr["raw"]["value"].as_i64().unwrap_or(0));
                     }
 
-                    // throughput => Throughput_Performance
                     if attr["name"] == "Throughput_Performance" {
-                        throughput = attr["raw"]["value"].as_i64().unwrap_or(0);
+                        // throughput => Throughput_Performance
+                        disk_stat.throughput =
+                            Some(attr["raw"]["value"].as_i64().unwrap_or(0));
                     }
 
-                    // read_error_rate => Raw_Read_Error_Rate
                     if attr["name"] == "Raw_Read_Error_Rate" {
-                        read_error_rate = attr["raw"]["value"].as_i64().unwrap_or(0);
+                        // read_error_rate => Raw_Read_Error_Rate
+                        disk_stat.read_error_rate =
+                            Some(attr["raw"]["value"].as_i64().unwrap_or(0));
                     }
 
-                    // crc_errors => UDMA_CRC_Error_Count
                     if attr["name"] == "UDMA_CRC_Error_Count" {
-                        crc_errors = attr["raw"]["value"].as_i64().unwrap_or(0);
+                        // crc_errors => UDMA_CRC_Error_Count
+                        disk_stat.crc_errors =
+                            Some(attr["raw"]["value"].as_i64().unwrap_or(0));
                     }
 
-                    // seek_time => Seek_Time_Performance
                     if attr["name"] == "Seek_Time_Performance" {
-                        seek_time = attr["raw"]["value"].as_i64().unwrap_or(0);
+                        // seek_time => Seek_Time_Performance
+                        disk_stat.seek_time = Some(attr["raw"]["value"].as_i64().unwrap_or(0));
                     }
                 }
 
-                entries.push(DiskStat {
-                    time: SystemTime::now(),
-                    name: Some(disk_device),
-                    temperature: Some(temperature),
-                    crc_errors: Some(crc_errors),
-                    seek_time: Some(seek_time),
-                    seek_error_rate: Some(seek_error_rate),
-                    throughput: Some(throughput),
-                    read_error_rate: Some(read_error_rate),
-                });
+                entries.push(disk_stat);
             }
             Err(err) => error!("smartctl failed with: {err}"),
         }
