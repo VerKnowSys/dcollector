@@ -1,10 +1,16 @@
 use crate::{
+    // disk_stats::host_name,
     models::DefaultWithTime,
     schema::{
-        disk_stats::{dsl::disk_stats, time as disk_stats_time},
-        proc_stats::{dsl::proc_stats, time as proc_stats_time},
-        sys_stats::{dsl::sys_stats, time as sys_stats_time},
-        ups_stats::{dsl::ups_stats, time as ups_stats_time},
+        // disk_stats::dsl::disk_stats,
+        // disk_stats::{dsl::disk_stats, time as disk_stats_time},
+        disk_stats::dsl::disk_stats,
+        // proc_stats::{dsl::proc_stats, time as proc_stats_time},
+        proc_stats::dsl::proc_stats,
+        // sys_stats::{dsl::sys_stats, time as sys_stats_time},
+        sys_stats::dsl::sys_stats,
+        // ups_stats::{dsl::ups_stats, time as ups_stats_time},
+        ups_stats::dsl::ups_stats,
     },
     systeminfo::{disk_stats_entry, sys_process_entries, sys_stats_entry},
     ups::ups_stats_entry,
@@ -96,71 +102,4 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
 
         Ok(())
     })
-}
-
-
-/// Print "amount" of entries from RDBMS
-pub fn print_entries(pg_connection: &PgConnection, amount: usize) -> Result<(), Error> {
-    let results = ups_stats
-        // .filter(model.eq("1600 SINUS"))
-        .limit(amount as i64)
-        .order(ups_stats_time.desc())
-        .load::<UpsStat>(pg_connection)?;
-
-    let results_system = sys_stats
-        .limit(amount as i64)
-        .order(sys_stats_time.desc())
-        .load::<SysStat>(pg_connection)?;
-
-    let results_procs = proc_stats
-        .limit(amount as i64)
-        .order(proc_stats_time.desc())
-        .load::<ProcStat>(pg_connection)?;
-
-    let results_disks = disk_stats
-        .limit(amount as i64)
-        .order(disk_stats_time.desc())
-        .load::<DiskStat>(pg_connection)?;
-
-    let len = results_procs.len();
-    debug!(
-        "Displaying {} Disk {}",
-        len,
-        if len > 1 { "entries" } else { "entry" }
-    );
-    for entry in &results_disks {
-        debug!("Disks: {}", entry);
-    }
-
-    let len = results_procs.len();
-    debug!(
-        "Displaying {} Process {}",
-        len,
-        if len > 1 { "entries" } else { "entry" }
-    );
-    for entry in &results_procs {
-        debug!("Processes: {}", entry);
-    }
-
-    let len = results.len();
-    debug!(
-        "Displaying {} UPS {}",
-        len,
-        if len > 1 { "entries" } else { "entry" }
-    );
-    for entry in &results {
-        debug!("UPS: {}", entry);
-    }
-
-    let len = results_system.len();
-    debug!(
-        "Displaying {} system {}",
-        len,
-        if len > 1 { "entries" } else { "entry" }
-    );
-    for entry in &results_system {
-        debug!("System: {}", entry);
-    }
-
-    Ok(())
 }

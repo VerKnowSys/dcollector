@@ -1,7 +1,7 @@
 //! "Dcollector" TimescaleDB agent.
 
 use dcollector::{
-    postgres::{establish_postgres_connection, print_entries, store_entries},
+    postgres::{establish_postgres_connection, store_entries},
     *,
 };
 use dotenv::dotenv;
@@ -60,7 +60,7 @@ fn main() {
             }
         };
 
-        match store_entries(&pg_conn).and(print_entries(&pg_conn, 1)) {
+        match store_entries(&pg_conn) {
             Ok(_) => info!("Iteration #{} was successful.", iteration),
             Err(error) => {
                 error!("Iteration #{} failed with error: {}", iteration, error);

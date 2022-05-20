@@ -58,4 +58,8 @@ pub mod ups;
 
 pub use models::{DiskStat, ProcStat, SysStat, UpsStat};
 pub use schema::{disk_stats, proc_stats, sys_stats, ups_stats};
+pub use std::{
+    fmt::Display,
+    time::{SystemTime, UNIX_EPOCH},
+};
 pub use tracing::{debug, error, info, instrument, trace, warn};

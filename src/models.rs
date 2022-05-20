@@ -1,12 +1,8 @@
 use crate::*;
+
 use chrono::{DateTime, Local, TimeZone};
 use core::fmt;
-use diesel::*;
 use serde::Deserialize;
-use std::{
-    fmt::Display,
-    time::{SystemTime, UNIX_EPOCH},
-};
 
 
 /// ProcStat holds one row of user processes with resources usage
@@ -14,6 +10,8 @@ use std::{
 pub struct ProcStat {
     /// PK
     pub time: SystemTime,
+    /// Holds hostname where process is running
+    pub host_name: Option<String>,
     /// Holds time, when process started
     pub start_time: Option<SystemTime>,
     /// Holds abs path to executable
@@ -43,6 +41,7 @@ impl Default for ProcStat {
     fn default() -> ProcStat {
         ProcStat {
             time: SystemTime::now(),
+            host_name: None,
             start_time: None,
             exe: None,
             cmd: None,
@@ -120,10 +119,12 @@ impl Default for SysStat {
 pub struct DiskStat {
     /// PK
     pub time: SystemTime,
+    /// Holds the host name
+    pub host_name: Option<String>,
     /// Holds the device name
     pub name: Option<String>,
     /// Holds the disk temperature
-    pub temperature: Option<f32>,
+    pub temperature: Option<f64>,
     /// CRC errors counter
     pub crc_errors: Option<i64>,
     /// Time for device to seek
@@ -141,6 +142,7 @@ impl Default for DiskStat {
     fn default() -> DiskStat {
         DiskStat {
             time: SystemTime::now(),
+            host_name: None,
             name: None,
             temperature: None,
             crc_errors: None,

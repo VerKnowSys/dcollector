@@ -2,12 +2,13 @@ table! {
     disk_stats (time) {
         time -> Timestamp,
         name -> Nullable<Text>,
-        temperature -> Nullable<Float4>,
+        temperature -> Nullable<Float8>,
         crc_errors -> Nullable<Int8>,
         seek_time -> Nullable<Int8>,
         seek_error_rate -> Nullable<Int8>,
         throughput -> Nullable<Int8>,
         read_error_rate -> Nullable<Int8>,
+        host_name -> Nullable<Text>,
     }
 }
 
@@ -25,6 +26,7 @@ table! {
         cpu_usage -> Nullable<Float4>,
         rss -> Nullable<Int8>,
         status -> Nullable<Text>,
+        host_name -> Nullable<Text>,
     }
 }
 

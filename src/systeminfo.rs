@@ -52,6 +52,7 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
         };
         let proc_stat = ProcStat {
             time: SystemTime::now(),
+            host_name: sys.host_name(),
             exe: Some(process.exe().to_string_lossy().to_string()),
             cmd: Some(process.cmd().join(" ")),
             name: Some(process.name().to_string()),
