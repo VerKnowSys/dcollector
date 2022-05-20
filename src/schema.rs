@@ -1,4 +1,17 @@
 table! {
+    disk_stats (time) {
+        time -> Timestamp,
+        name -> Nullable<Text>,
+        temperature -> Nullable<Float4>,
+        crc_errors -> Nullable<Int8>,
+        seek_time -> Nullable<Int8>,
+        seek_error_rate -> Nullable<Int8>,
+        throughput -> Nullable<Int8>,
+        read_error_rate -> Nullable<Int8>,
+    }
+}
+
+table! {
     proc_stats (time) {
         time -> Timestamp,
         start_time -> Nullable<Timestamp>,
@@ -47,4 +60,9 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(proc_stats, sys_stats, ups_stats,);
+allow_tables_to_appear_in_same_query!(
+    disk_stats,
+    proc_stats,
+    sys_stats,
+    ups_stats,
+);

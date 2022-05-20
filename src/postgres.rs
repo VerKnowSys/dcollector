@@ -42,6 +42,10 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
             .get_result::<UpsStat>(pg_connection)?;
 
         // insert batch of entries
+        diesel::insert_into(disk_stats)
+            .values(disk_stats_entry(&sys))
+            .execute(pg_connection)?;
+
         diesel::insert_into(proc_stats)
             .values(sys_process_entries(&sys))
             .execute(pg_connection)?;
@@ -68,6 +72,21 @@ pub fn print_entries(pg_connection: &PgConnection, amount: usize) -> Result<(), 
         .limit(amount as i64)
         .order(proc_stats_time.desc())
         .load::<ProcStat>(pg_connection)?;
+
+    let results_disks = disk_stats
+        .limit(amount as i64)
+        .order(disk_stats_time.desc())
+        .load::<DiskStat>(pg_connection)?;
+
+    let len = results_procs.len();
+    debug!(
+        "Displaying {} Disk {}",
+        len,
+        if len > 1 { "entries" } else { "entry" }
+    );
+    for entry in &results_disks {
+        debug!("Disks: {}", entry);
+    }
 
     let len = results_procs.len();
     debug!(

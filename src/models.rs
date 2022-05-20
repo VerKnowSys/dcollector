@@ -74,6 +74,28 @@ pub struct SysStat {
 
 /// upsStat holds one row of UPS data fetched from Nut server
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
+pub struct DiskStat {
+    /// PK
+    pub time: SystemTime,
+    /// Holds the device name
+    pub name: Option<String>,
+    /// Holds the disk temperature
+    pub temperature: Option<f32>,
+    /// CRC errors counter
+    pub crc_errors: Option<i64>,
+    /// Time for device to seek
+    pub seek_time: Option<i64>,
+    /// Seek error rate
+    pub seek_error_rate: Option<i64>,
+    /// Throughput performance
+    pub throughput: Option<i64>,
+    /// Read error rate
+    pub read_error_rate: Option<i64>,
+}
+
+
+/// upsStat holds one row of UPS data fetched from Nut server
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable)]
 pub struct UpsStat {
     /// PK
     pub time: SystemTime,
@@ -111,6 +133,23 @@ fn system_time_to_date_time(t: SystemTime) -> DateTime<Local> {
         }
     };
     Local.timestamp(sec, nsec)
+}
+
+
+impl Display for DiskStat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Name: {name}, Temperature: {temperature}, CRC Errors: {crc_errors}, Seek Time: {seek_time}, Seek Error Rate: {seek_error_rate}, Throughput: {throughput}, Read Error Rate: {read_error_rate}",
+            name = self.name.clone().unwrap_or_default(),
+            temperature = self.temperature.unwrap_or_default(),
+            crc_errors = self.crc_errors.unwrap_or_default(),
+            seek_time = self.seek_time.unwrap_or_default(),
+            seek_error_rate = self.seek_error_rate.unwrap_or_default(),
+            throughput = self.throughput.unwrap_or_default(),
+            read_error_rate = self.read_error_rate.unwrap_or_default(),
+        )
+    }
 }
 
 

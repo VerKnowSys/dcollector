@@ -71,3 +71,113 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
     }
     processes
 }
+
+
+// #[cfg(target_os = "macos")]
+// let the_command = Command::new("sudo")
+//     .args(&["smartctl", "-j", "-f", "brief", "-A", &disk_device])
+//     .stdin(Stdio::null())
+//     .output();
+
+
+#[instrument]
+/// Reads disks from sysctl on FreeBSD
+fn read_devices_list() -> Vec<String> {
+    match Command::new("sysctl")
+        .args(&["-n", "kern.disks"])
+        .stdin(Stdio::null())
+        .output()
+    {
+        Ok(output) => {
+            let sysctl_disks_raw = String::from_utf8_lossy(&output.stdout).to_string();
+            sysctl_disks_raw
+                .split_whitespace()
+                .filter_map(|dsk| {
+                    if !dsk.starts_with("flash") && !dsk.starts_with("mmc") {
+                        Some(format!("/dev/{dsk}"))
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        }
+        Err(_er) => {
+            vec![]
+        }
+    }
+}
+
+
+#[instrument]
+/// Read and fill DiskStat entry with stats from the disks
+pub fn disk_stats_entry(sys: &System) -> Vec<DiskStat> {
+    let mut entries = vec![];
+
+    for disk_device in read_devices_list() {
+        let the_command = Command::new("smartctl")
+            .args(&["-j", "-f", "brief", "-A", &disk_device])
+            .stdin(Stdio::null())
+            .output();
+
+        match the_command {
+            Ok(output) => {
+                let data = String::from_utf8_lossy(&output.stdout).to_string();
+                let smartctl_obj: Value =
+                    serde_json::from_str(data.as_str()).unwrap_or_default();
+                trace!("smartctl command successful, the parsed object: {smartctl_obj:#?}");
+
+                let temperature = smartctl_obj["temperature"]["current"]
+                    .as_f64()
+                    .unwrap_or(0.0) as f32;
+                let mut crc_errors = 0i64;
+                let mut seek_time = 0i64;
+                let mut seek_error_rate = 0i64;
+                let mut read_error_rate = 0i64;
+                let mut throughput = 0i64;
+
+                for attr in smartctl_obj["ata_smart_attributes"]["table"]
+                    .as_array()
+                    .unwrap()
+                {
+                    // seek_error_rate => Seek_Error_Rate
+                    if attr["name"] == "Seek_Error_Rate" {
+                        seek_error_rate = attr["raw"]["value"].as_i64().unwrap_or(0);
+                    }
+
+                    // throughput => Throughput_Performance
+                    if attr["name"] == "Throughput_Performance" {
+                        throughput = attr["raw"]["value"].as_i64().unwrap_or(0);
+                    }
+
+                    // read_error_rate => Raw_Read_Error_Rate
+                    if attr["name"] == "Raw_Read_Error_Rate" {
+                        read_error_rate = attr["raw"]["value"].as_i64().unwrap_or(0);
+                    }
+
+                    // crc_errors => UDMA_CRC_Error_Count
+                    if attr["name"] == "UDMA_CRC_Error_Count" {
+                        crc_errors = attr["raw"]["value"].as_i64().unwrap_or(0);
+                    }
+
+                    // seek_time => Seek_Time_Performance
+                    if attr["name"] == "Seek_Time_Performance" {
+                        seek_time = attr["raw"]["value"].as_i64().unwrap_or(0);
+                    }
+                }
+
+                entries.push(DiskStat {
+                    time: SystemTime::now(),
+                    name: Some(disk_device),
+                    temperature: Some(temperature),
+                    crc_errors: Some(crc_errors),
+                    seek_time: Some(seek_time),
+                    seek_error_rate: Some(seek_error_rate),
+                    throughput: Some(throughput),
+                    read_error_rate: Some(read_error_rate),
+                });
+            }
+            Err(err) => error!("smartctl failed with: {err}"),
+        }
+    }
+    entries
+}
