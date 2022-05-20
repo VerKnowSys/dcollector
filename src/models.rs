@@ -294,3 +294,50 @@ impl Display for UpsStat {
         )
     }
 }
+
+
+/// Common trait to implement a Default for a type, but we wish to skip the "time" field
+pub trait DefaultWithTime {
+    /// Return type Default, without the "time" field
+    fn default_skip_time(entry: &Self) -> Self;
+}
+
+
+impl DefaultWithTime for ProcStat {
+    fn default_skip_time(entry: &Self) -> Self {
+        Self {
+            time: entry.time,
+            ..Self::default()
+        }
+    }
+}
+
+
+impl DefaultWithTime for SysStat {
+    fn default_skip_time(entry: &Self) -> Self {
+        Self {
+            time: entry.time,
+            ..Self::default()
+        }
+    }
+}
+
+
+impl DefaultWithTime for UpsStat {
+    fn default_skip_time(entry: &Self) -> Self {
+        Self {
+            time: entry.time,
+            ..Self::default()
+        }
+    }
+}
+
+
+impl DefaultWithTime for DiskStat {
+    fn default_skip_time(entry: &Self) -> Self {
+        Self {
+            time: entry.time,
+            ..Self::default()
+        }
+    }
+}
