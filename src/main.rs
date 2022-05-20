@@ -43,7 +43,7 @@ fn main() {
         env!("CARGO_PKG_VERSION")
     );
 
-    let mut iteration = 0u64;
+    let mut iteration = 0u128;
     loop {
         iteration += 1;
         info!("Iteration #{} is starting…", iteration);
@@ -52,7 +52,7 @@ fn main() {
             Ok(connection) => connection,
             Err(error) => {
                 error!(
-                    "Sleeping 5s while we experience PostgreSQL TimescaleDB! Error: {}",
+                    "Sleeping 5s while we experience TimescaleDB Connection Failure: {}",
                     error
                 );
                 thread::sleep(Duration::from_secs(5));
@@ -64,6 +64,7 @@ fn main() {
             Ok(_) => info!("Iteration #{} was successful.", iteration),
             Err(error) => {
                 error!("Iteration #{} failed with error: {}", iteration, error);
+                thread::sleep(Duration::from_secs(5));
                 continue;
             }
         }
