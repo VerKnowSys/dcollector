@@ -2,6 +2,7 @@ use crate::*;
 use chrono::{DateTime, Local, TimeZone};
 use core::fmt;
 use diesel::*;
+use serde::Deserialize;
 use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},
