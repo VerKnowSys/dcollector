@@ -1,11 +1,6 @@
-use crate::{
-    schema::{proc_stats, sys_stats, ups_stats},
-    *,
-};
+use crate::*;
 use chrono::{DateTime, Local, TimeZone};
-
 use core::fmt;
-
 use diesel::*;
 use std::{
     fmt::Display,

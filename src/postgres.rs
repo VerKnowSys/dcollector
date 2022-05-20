@@ -1,12 +1,13 @@
 use crate::{
-    models::{ProcStat, SysStat, UpsStat},
     schema::{
+        disk_stats::{dsl::disk_stats, time as disk_stats_time},
         proc_stats::{dsl::proc_stats, time as proc_stats_time},
         sys_stats::{dsl::sys_stats, time as sys_stats_time},
         ups_stats::{dsl::ups_stats, time as ups_stats_time},
     },
-    systeminfo::{sys_process_entries, sys_stats_entry},
-    ups_stats_entry, *,
+    systeminfo::{disk_stats_entry, sys_process_entries, sys_stats_entry},
+    ups::ups_stats_entry,
+    *,
 };
 use diesel::{
     pg::PgConnection,

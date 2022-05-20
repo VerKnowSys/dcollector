@@ -1,4 +1,4 @@
-use crate::{UpsStat, *};
+use crate::*;
 use nut_client::{blocking::Connection as NutConnection, ConfigBuilder, Variable};
 use std::{convert::TryInto, env, time::SystemTime};
 
