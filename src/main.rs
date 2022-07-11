@@ -46,14 +46,13 @@ fn main() {
     let mut iteration = 0u128;
     loop {
         iteration += 1;
-        info!("Iteration #{} is starting…", iteration);
+        debug!("Iteration #{iteration} is starting…");
         // Continously attempt to make connection with the configured TimescaleDB:
         let pg_conn = match establish_postgres_connection() {
             Ok(connection) => connection,
             Err(error) => {
                 error!(
-                    "Sleeping 5s while we experience TimescaleDB Connection Failure: {}",
-                    error
+                    "Sleeping 5s while we experience TimescaleDB Connection Failure: {error}",
                 );
                 thread::sleep(Duration::from_secs(5));
                 continue;
@@ -61,9 +60,9 @@ fn main() {
         };
 
         match store_entries(&pg_conn) {
-            Ok(_) => info!("Iteration #{} was successful.", iteration),
+            Ok(_) => debug!("Iteration #{iteration} was successful."),
             Err(error) => {
-                error!("Iteration #{} failed with error: {}", iteration, error);
+                error!("Iteration #{iteration} failed with error: {error}");
                 thread::sleep(Duration::from_secs(5));
                 continue;
             }
