@@ -34,9 +34,9 @@ fn main() {
     dotenv().ok();
 
     let sleep = env::var("SLEEP_SECONDS")
-        .unwrap_or_else(|_| String::from("10"))
+        .unwrap_or_else(|_| String::from("5"))
         .parse::<u64>()
-        .unwrap_or(10);
+        .unwrap_or(5);
 
     info!(
         "Starting dcollector, version: {}",
