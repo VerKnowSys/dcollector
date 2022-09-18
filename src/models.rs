@@ -74,13 +74,13 @@ pub struct SysStat {
     /// Holds amount of processors on the machine
     pub processors: Option<i32>,
     /// Holds total memory available on the machine
-    pub total_memory: Option<i32>,
+    pub total_memory: Option<i64>,
     /// Holds memory allocated/ used on the machine
-    pub used_memory: Option<i32>,
+    pub used_memory: Option<i64>,
     /// Holds total swap available on the machnie
-    pub total_swap: Option<i32>,
+    pub total_swap: Option<i64>,
     /// Holds swap used on the machine
-    pub used_swap: Option<i32>,
+    pub used_swap: Option<i64>,
     /// Holds load average one-mins
     pub load_one: Option<f64>,
     /// Holds load average five-mins

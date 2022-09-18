@@ -30,10 +30,10 @@ pub fn sys_stats_entry(sys: &System) -> SysStat {
 
         processors: Some(cpu_cores as i32),
 
-        total_memory: Some(sys.total_memory() as i32),
-        used_memory: Some(sys.used_memory() as i32),
-        total_swap: Some(sys.total_swap() as i32),
-        used_swap: Some(sys.used_swap() as i32),
+        total_memory: Some(sys.total_memory() as i64),
+        used_memory: Some(sys.used_memory() as i64),
+        total_swap: Some(sys.total_swap() as i64),
+        used_swap: Some(sys.used_swap() as i64),
     }
 }
 
