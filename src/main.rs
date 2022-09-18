@@ -48,7 +48,7 @@ fn main() {
         iteration += 1;
         debug!("Iteration #{iteration} is starting…");
         // Continously attempt to make connection with the configured TimescaleDB:
-        let pg_conn = match establish_postgres_connection() {
+        let mut pg_conn = match establish_postgres_connection() {
             Ok(connection) => connection,
             Err(error) => {
                 error!(
@@ -59,7 +59,7 @@ fn main() {
             }
         };
 
-        match store_entries(&pg_conn) {
+        match store_entries(&mut pg_conn) {
             Ok(_) => debug!("Iteration #{iteration} was successful."),
             Err(error) => {
                 error!("Iteration #{iteration} failed with error: {error}");

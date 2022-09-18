@@ -5,13 +5,15 @@ use std::{
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use sysinfo::{ProcessExt, ProcessorExt, System, SystemExt};
+use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
 
 
 /// Read and fill SysStat entry with system stats
 #[instrument]
 pub fn sys_stats_entry(sys: &System) -> SysStat {
-    let cpu = sys.global_processor_info();
+    let cpu_cores = sys.physical_core_count().unwrap_or(1);
+    let cpu_usage =
+        sys.cpus().iter().map(|cpu| cpu.cpu_usage()).sum::<f32>() / cpu_cores as f32;
     let load_avg = sys.load_average();
 
     SysStat {
@@ -21,12 +23,12 @@ pub fn sys_stats_entry(sys: &System) -> SysStat {
         os_version: sys.os_version(),
         host_name: sys.host_name(),
 
-        cpu_usage: Some(cpu.cpu_usage()),
+        cpu_usage: Some(cpu_usage),
         load_one: Some(load_avg.one),
         load_five: Some(load_avg.five),
         load_fifteen: Some(load_avg.fifteen),
 
-        processors: Some(sys.processors().len() as i32),
+        processors: Some(cpu_cores as i32),
 
         total_memory: Some(sys.total_memory() as i32),
         used_memory: Some(sys.used_memory() as i32),

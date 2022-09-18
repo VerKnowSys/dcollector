@@ -34,8 +34,8 @@ pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> 
 
 
 /// Store all entries (Systat, UpsStat and ProcStat) in a single RDBMS transaction
-pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
-    pg_connection.transaction(|| {
+pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
+    pg_connection.transaction(|pg_connection| {
         // read data from system once:
         let mut sys = System::new_all();
         sys.refresh_all();
@@ -47,7 +47,8 @@ pub fn store_entries(pg_connection: &PgConnection) -> Result<(), Error> {
         if a_sys_stats_entry != SysStat::default_skip_time(&a_sys_stats_entry) {
             diesel::insert_into(sys_stats)
                 .values(a_sys_stats_entry)
-                .get_result::<SysStat>(pg_connection)?;
+                .execute(pg_connection)
+                .unwrap_or_default();
         } else {
             debug!("Empty SysStat entry. Skipping DB store.");
         }

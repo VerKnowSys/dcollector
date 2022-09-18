@@ -1,4 +1,6 @@
-table! {
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
     disk_stats (time) {
         time -> Timestamp,
         name -> Nullable<Text>,
@@ -12,7 +14,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     proc_stats (time) {
         time -> Timestamp,
         start_time -> Nullable<Timestamp>,
@@ -30,7 +32,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     sys_stats (time) {
         time -> Timestamp,
         name -> Nullable<Text>,
@@ -49,7 +51,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     ups_stats (time) {
         time -> Timestamp,
         model -> Nullable<Text>,
@@ -62,7 +64,7 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
+diesel::allow_tables_to_appear_in_same_query!(
     disk_stats,
     proc_stats,
     sys_stats,

@@ -9,7 +9,6 @@
     trivial_casts,
     trivial_numeric_casts,
     unused_import_braces,
-    unused_qualifications,
     bad_style,
     const_err,
     dead_code,
@@ -30,8 +29,7 @@
     trivial_casts,
     trivial_numeric_casts,
     unused_extern_crates,
-    unused_import_braces,
-    unused_qualifications
+    unused_import_braces
 )]
 
 
