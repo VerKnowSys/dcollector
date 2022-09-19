@@ -44,11 +44,10 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
     sys.processes()
         .values()
         .into_iter()
-        .filter_map(|process| {
+        .map(|process| {
             // Sleep 10ms to avoid time PK duplication with a lot of processes running in system:
             thread::sleep(Duration::from_millis(10));
 
-            let disk_usage = process.disk_usage();
             let maybe_time = UNIX_EPOCH + Duration::from_secs(process.start_time());
             let start_time = if maybe_time == UNIX_EPOCH {
                 // if the time is the same as UNIX_EPOCH it means that the process is short lived
@@ -56,28 +55,30 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
             } else {
                 Some(maybe_time)
             };
-            let exe = process.exe().to_string_lossy().to_string();
             let name = process.name().to_string();
+            let cmd = process.cmd().join(" ");
+            let exec = process.exe().display().to_string();
+            let exe = if exec.is_empty() {
+                name.to_owned()
+            } else {
+                exec
+            };
+            let disk_usage = process.disk_usage();
 
-            if !exe.is_empty() && !name.is_empty() {
-                let proc_stat = ProcStat {
-                    time: SystemTime::now(),
-                    host_name: sys.host_name(),
-                    exe: Some(exe),
-                    cmd: Some(process.cmd().join(" ")),
-                    name: Some(name),
-                    disk_read: Some(disk_usage.read_bytes as i64),
-                    disk_read_total: Some(disk_usage.total_read_bytes as i64),
+            ProcStat {
+                time: SystemTime::now(),
+                host_name: sys.host_name(),
+                exe: Some(exe),
+                cmd: Some(cmd),
+                name: Some(name),
+                disk_read: Some(disk_usage.read_bytes as i64),
+                disk_read_total: Some(disk_usage.total_read_bytes as i64),
                     disk_written: Some(disk_usage.written_bytes as i64),
                     disk_written_total: Some(disk_usage.total_written_bytes as i64),
                     cpu_usage: Some(process.cpu_usage()),
                     rss: Some(process.memory() as i64),
-                    status: Some(process.status().to_string()),
-                    start_time,
-                };
-                Some(proc_stat)
-            } else {
-                None
+                status: Some(process.status().to_string()),
+                start_time,
             }
         })
         .collect()
