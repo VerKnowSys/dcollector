@@ -34,6 +34,7 @@ pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> 
 
 
 /// Store all entries (Systat, UpsStat and ProcStat) in a single RDBMS transaction
+#[instrument(skip(pg_connection))]
 pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
     pg_connection.transaction(|pg_connection| {
         // read data from system once:
