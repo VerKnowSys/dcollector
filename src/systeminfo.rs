@@ -43,9 +43,8 @@ pub fn sys_stats_entry(sys: &System) -> SysStat {
 pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
     sys.processes()
         .values()
-        .into_iter()
         .map(|process| {
-            // Sleep 10ms to avoid time PK duplication with a lot of processes running in system:
+            // Sleep 10ms to avoid time PK duplication with a lot of processes running in the system:
             thread::sleep(Duration::from_millis(10));
 
             let maybe_time = UNIX_EPOCH + Duration::from_secs(process.start_time());
@@ -73,10 +72,10 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
                 name: Some(name),
                 disk_read: Some(disk_usage.read_bytes as i64),
                 disk_read_total: Some(disk_usage.total_read_bytes as i64),
-                    disk_written: Some(disk_usage.written_bytes as i64),
-                    disk_written_total: Some(disk_usage.total_written_bytes as i64),
-                    cpu_usage: Some(process.cpu_usage()),
-                    rss: Some(process.memory() as i64),
+                disk_written: Some(disk_usage.written_bytes as i64),
+                disk_written_total: Some(disk_usage.total_written_bytes as i64),
+                cpu_usage: Some(process.cpu_usage()),
+                rss: Some(process.memory() as i64),
                 status: Some(process.status().to_string()),
                 start_time,
             }
@@ -89,7 +88,7 @@ pub fn sys_process_entries(sys: &System) -> Vec<ProcStat> {
 /// Reads disks from sysctl on FreeBSD
 fn read_devices_list() -> Vec<String> {
     match Command::new("sysctl")
-        .args(&["-n", "kern.disks"])
+        .args(["-n", "kern.disks"])
         .stdin(Stdio::null())
         .output()
     {
@@ -120,7 +119,7 @@ pub fn disk_stats_entry(sys: &System) -> Vec<DiskStat> {
         .into_iter()
         .filter_map(|disk_device| {
             let the_command = Command::new("smartctl")
-                .args(&["-j", "-f", "brief", "-A", &disk_device])
+                .args(["-j", "-f", "brief", "-A", &disk_device])
                 .stdin(Stdio::null())
                 .output();
 

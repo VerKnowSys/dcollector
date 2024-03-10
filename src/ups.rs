@@ -46,7 +46,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 input_frequency: nut_connection
                     .get_var(&nut_ups, "input.frequency")
                     .unwrap_or_else(|err| {
-                        error!("Error: No UPS input frequency available?: {}", err);
+                        debug!("Error: No UPS input frequency available?: {}", err);
                         Variable::Other((String::from("input.frequency"), String::new()))
                     })
                     .value()
@@ -73,7 +73,7 @@ pub fn ups_stats_entry() -> UpsStat {
                 battery_voltage: nut_connection
                     .get_var(&nut_ups, "battery.voltage")
                     .unwrap_or_else(|err| {
-                        error!("Error: No UPS battery voltage available?: {}", err);
+                        debug!("Error: No UPS battery voltage available?: {}", err);
                         Variable::Other((String::from("battery.voltage"), String::new()))
                     })
                     .value()
