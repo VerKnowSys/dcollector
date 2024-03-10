@@ -26,18 +26,23 @@ if [ "0" != "${?}" ]; then
     s i Smartmontools
 fi
 
-s env +Postgresql13 +Patchelf +Rust +Smartmontools
+s env +Postgresql13 +Patchelf +Rust +Smartmontools +Vim
 
 export LD_LIBRARY_PATH=/Software/Postgresql13/lib:/usr/lib
+
+igni dcollector stop
+mv /Shared/Igniters/dcollector.igni /tmp/dcollector.igni
+
 cargo build --release \
     && patchelf --set-rpath /Software/Postgresql13/lib target/release/dcollector \
     && mv .env .env.dev \
     && cp /Services/Dcollector/.env ./ \
-    && igni dcollector stop \
     && diesel migration run \
     && mv .env.dev .env \
     && install -v target/release/dcollector /Services/Dcollector/bin/dcollector \
-    && igni dcollector start \
     && printf "Deploy completed\n"
+
+mv /tmp/dcollector.igni /Shared/Igniters/dcollector.igni
+igni dcollector start
 
 s env reset
