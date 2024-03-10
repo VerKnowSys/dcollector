@@ -29,7 +29,7 @@ fi
 s env +Git +Postgresql13 +Patchelf +Rust +Smartmontools
 
 igni dcollector stop
-mv /Shared/Igniters/dcollector.igni /tmp/dcollector.igni
+rm -f /Shared/Igniters/dcollector.igni
 
 s up
 s rm dcollector
@@ -46,7 +46,9 @@ s i dcollector
     cd /Services/Dcollector;
     diesel migration run;
 )
-mv /tmp/dcollector.igni /Shared/Igniters/dcollector.igni
+install -v -m 775 \
+    src/dcollector.igni \
+    /Shared/Igniters/dcollector.igni
 igni dcollector start
 
 s env reset

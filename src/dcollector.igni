@@ -10,4 +10,4 @@
 ignite \
     name="Dcollector" \
     action="${1:-status}" \
-    start_cmd="'export SLEEP_SECONDS=2 && cd /Services/Dcollector && daemon -p /Services/Dcollector/service.pid -P /Services/Dcollector/service-supervisor.pid -H -t dcollector -o /Services/Dcollector/service.log /Services/Dcollector/bin/dcollector'"
+    start_cmd="'export SLEEP_SECONDS=2 && cd /Services/Dcollector && daemon -p /Services/Dcollector/service.pid -P /Services/Dcollector/service-supervisor.pid -H -t dcollector -o /Services/Dcollector/service.log /Software/Dcollector/bin/dcollector'"
