@@ -24,7 +24,7 @@ serde_json = "1.0.114"
 [profile.release]
 opt-level = 'z'
 debug = false
-rpath = false
+rpath = true
 lto = true
 debug-assertions = false
 codegen-units = 1
