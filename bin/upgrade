@@ -26,7 +26,7 @@ if [ "0" != "${?}" ]; then
     s i Smartmontools
 fi
 
-s env +Postgresql13 +Patchelf +Rust +Smartmontools
+s env +Git +Postgresql13 +Patchelf +Rust +Smartmontools
 
 igni dcollector stop
 mv /Shared/Igniters/dcollector.igni /tmp/dcollector.igni
@@ -34,6 +34,14 @@ mv /Shared/Igniters/dcollector.igni /tmp/dcollector.igni
 s up
 s rm dcollector
 s i dcollector
+(
+    cd /tmp;
+    rm -rf dcollector;
+    git clone https://github.com/VerKnowSys/dcollector.git;
+    cd dcollector;
+    rm -rf /Services/Dcollector/migrations;
+    cp -r migrations /Services/Dcollector/;
+)
 (
     cd /Services/Dcollector;
     diesel migration run;
