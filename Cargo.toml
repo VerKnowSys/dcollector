@@ -2,6 +2,10 @@
 name = "dcollector"
 version = "0.6.0"
 edition = "2021"
+description = "dcollector - Data collector, that uses TimescaleDB for Postgresql 13+ to store the data"
+repository = "https://github.com/verknowsys/dcollector"
+license = "MIT"
+
 
 [dependencies]
 chrono = "0.4.35"
