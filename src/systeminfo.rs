@@ -5,7 +5,36 @@ use std::{
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
+use sysinfo::{CpuExt, NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
+
+
+/// Read and fill NetStat entry
+#[instrument]
+pub fn net_stats_entries(sys: &System) -> Vec<NetStat> {
+    sys.networks()
+        .iter()
+        .map(|(interface_name, network)| {
+            // Sleep 10ms to avoid time PK duplication with a lot of network devices running in the system:
+            thread::sleep(Duration::from_millis(10));
+            NetStat {
+                time: SystemTime::now(),
+                netdev: Some(String::from(interface_name)),
+                packets_received: Some(network.packets_received() as i64),
+                total_packets_received: Some(network.total_packets_received() as i64),
+                packets_transmitted: Some(network.packets_transmitted() as i64),
+                total_packets_transmitted: Some(network.total_packets_transmitted() as i64),
+                received: Some(network.received() as i64),
+                total_received: Some(network.total_received() as i64),
+                transmitted: Some(network.transmitted() as i64),
+                total_transmitted: Some(network.total_transmitted() as i64),
+                transmitted_errors: Some(network.errors_on_transmitted() as i64),
+                transmitted_total_errors: Some(network.total_errors_on_transmitted() as i64),
+                received_errors: Some(network.errors_on_received() as i64),
+                received_total_errors: Some(network.total_errors_on_received() as i64),
+            }
+        })
+        .collect()
+}
 
 
 /// Read and fill SysStat entry with system stats

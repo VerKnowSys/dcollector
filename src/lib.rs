@@ -52,8 +52,8 @@ pub mod systeminfo;
 pub mod ups;
 
 
-pub use models::{DiskStat, ProcStat, SysStat, UpsStat};
-pub use schema::{disk_stats, proc_stats, sys_stats, ups_stats};
+pub use models::{DiskStat, NetStat, ProcStat, SysStat, UpsStat};
+pub use schema::{disk_stats, net_stats, proc_stats, sys_stats, ups_stats};
 pub use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},

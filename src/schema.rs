@@ -15,6 +15,25 @@ diesel::table! {
 }
 
 diesel::table! {
+    net_stats (time) {
+        time -> Timestamp,
+        netdev -> Text,
+        packets_received -> Int8,
+        total_packets_received -> Int8,
+        packets_transmitted -> Int8,
+        total_packets_transmitted -> Int8,
+        received -> Int8,
+        total_received -> Int8,
+        transmitted -> Int8,
+        total_transmitted -> Int8,
+        transmitted_errors -> Int8,
+        transmitted_total_errors -> Int8,
+        received_errors -> Int8,
+        received_total_errors -> Int8,
+    }
+}
+
+diesel::table! {
     proc_stats (time) {
         time -> Timestamp,
         start_time -> Nullable<Timestamp>,
@@ -66,6 +85,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     disk_stats,
+    net_stats,
     proc_stats,
     sys_stats,
     ups_stats,

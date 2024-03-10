@@ -5,6 +5,43 @@ use core::fmt;
 use serde::Deserialize;
 
 
+/// SysStat holds one row of system stats
+#[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
+pub struct NetStat {
+    /// PK
+    pub time: SystemTime,
+    /// Holds network device name
+    pub netdev: Option<String>,
+    /// Packets received since the last refresh
+    pub packets_received: Option<i64>,
+    /// Packets received since the boot
+    pub total_packets_received: Option<i64>,
+    /// Packets transmitted since the last refresh
+    pub packets_transmitted: Option<i64>,
+    /// Packets transmitted since the boot
+    pub total_packets_transmitted: Option<i64>,
+
+    /// Bytes received since the boot
+    pub received: Option<i64>,
+    /// Bytes received since the boot
+    pub total_received: Option<i64>,
+    /// Bytes transmitted since the last refresh
+    pub transmitted: Option<i64>,
+    /// Bytes transmitted since the boot
+    pub total_transmitted: Option<i64>,
+
+    /// Transmitted errors since the last refresh
+    pub transmitted_errors: Option<i64>,
+    /// Total transmitted errors since the boot
+    pub transmitted_total_errors: Option<i64>,
+
+    /// Received errors since the last refresh
+    pub received_errors: Option<i64>,
+    /// Received errors since the last boot
+    pub received_total_errors: Option<i64>,
+}
+
+
 /// ProcStat holds one row of user processes with resources usage
 #[derive(Debug, Clone, Deserialize, Insertable, Queryable, PartialEq)]
 pub struct ProcStat {
@@ -34,6 +71,28 @@ pub struct ProcStat {
     pub rss: Option<i64>,
     /// Holds process status
     pub status: Option<String>,
+}
+
+
+impl Default for NetStat {
+    fn default() -> NetStat {
+        NetStat {
+            time: SystemTime::now(),
+            netdev: None,
+            packets_received: None,
+            total_packets_received: None,
+            packets_transmitted: None,
+            total_packets_transmitted: None,
+            received: None,
+            total_received: None,
+            transmitted: None,
+            total_transmitted: None,
+            transmitted_errors: None,
+            transmitted_total_errors: None,
+            received_errors: None,
+            received_total_errors: None,
+        }
+    }
 }
 
 
@@ -298,6 +357,29 @@ impl Display for UpsStat {
 }
 
 
+impl Display for NetStat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Time: {}, packets_received: {}, total_packets_received: {}, packets_transmitted: {}, total_packets_transmitted: {}, received: {}, total_received: {}, transmitted: {}, total_transmitted: {}, transmitted_errors: {}, transmitted_total_errors: {}, received_errors: {}, received_total_errors: {}",
+            system_time_to_date_time(self.time),
+            self.packets_received.unwrap_or_default(),
+            self.total_packets_received.unwrap_or_default(),
+            self.packets_transmitted.unwrap_or_default(),
+            self.total_packets_transmitted.unwrap_or_default(),
+            self.received.unwrap_or_default(),
+            self.total_received.unwrap_or_default(),
+            self.transmitted.unwrap_or_default(),
+            self.total_transmitted.unwrap_or_default(),
+            self.transmitted_errors.unwrap_or_default(),
+            self.transmitted_total_errors.unwrap_or_default(),
+            self.received_errors.unwrap_or_default(),
+            self.received_total_errors.unwrap_or_default(),
+        )
+    }
+}
+
+
 /// Common trait to implement a Default for a type, but we wish to skip the "time" field
 pub trait DefaultWithTime {
     /// Return type Default, without the "time" field
@@ -336,6 +418,16 @@ impl DefaultWithTime for UpsStat {
 
 
 impl DefaultWithTime for DiskStat {
+    fn default_skip_time(entry: &Self) -> Self {
+        Self {
+            time: entry.time,
+            ..Self::default()
+        }
+    }
+}
+
+
+impl DefaultWithTime for NetStat {
     fn default_skip_time(entry: &Self) -> Self {
         Self {
             time: entry.time,

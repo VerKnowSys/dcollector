@@ -5,6 +5,8 @@ use crate::{
         // disk_stats::dsl::disk_stats,
         // disk_stats::{dsl::disk_stats, time as disk_stats_time},
         disk_stats::dsl::disk_stats,
+        // ups_stats::{dsl::ups_stats, time as ups_stats_time},
+        net_stats::dsl::net_stats,
         // proc_stats::{dsl::proc_stats, time as proc_stats_time},
         proc_stats::dsl::proc_stats,
         // sys_stats::{dsl::sys_stats, time as sys_stats_time},
@@ -12,7 +14,7 @@ use crate::{
         // ups_stats::{dsl::ups_stats, time as ups_stats_time},
         ups_stats::dsl::ups_stats,
     },
-    systeminfo::{disk_stats_entry, sys_process_entries, sys_stats_entry},
+    systeminfo::{disk_stats_entry, net_stats_entries, sys_process_entries, sys_stats_entry},
     ups::ups_stats_entry,
     *,
 };
@@ -100,6 +102,25 @@ pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
                 .execute(pg_connection)?;
         } else {
             debug!("Empty ProcStat entry. Skipping DB store.");
+        }
+
+        // Networks stats (multiple entries)
+        let a_net_stats_entries = net_stats_entries(&sys)
+            .into_iter()
+            .filter_map(|entry| {
+                if entry != NetStat::default_skip_time(&entry) {
+                    Some(entry)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        if !a_net_stats_entries.is_empty() {
+            diesel::insert_into(net_stats)
+                .values(a_net_stats_entries)
+                .execute(pg_connection)?;
+        } else {
+            debug!("Empty NetStat entry. Skipping DB store.");
         }
 
         Ok(())
