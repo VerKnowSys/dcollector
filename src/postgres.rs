@@ -24,7 +24,7 @@ use diesel::{
     result::{ConnectionError, Error},
 };
 use std::env;
-use sysinfo::{System, SystemExt};
+use sysinfo::System;
 
 
 /// Establish connection with TimescaleDB
@@ -37,16 +37,12 @@ pub fn establish_postgres_connection() -> Result<PgConnection, ConnectionError> 
 
 /// Store all entries (Systat, UpsStat and ProcStat) in a single RDBMS transaction
 #[instrument(skip(pg_connection))]
-pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
+pub fn store_entries(sys: &mut System, pg_connection: &mut PgConnection) -> Result<(), Error> {
     pg_connection.transaction(|pg_connection| {
-        // read data from system once:
-        let mut sys = System::new_all();
-        sys.refresh_all();
-
         // prevent from storing default values. Skip write to the DB in that case:
 
         // System stats (a single entry)
-        let a_sys_stats_entry = sys_stats_entry(&sys);
+        let a_sys_stats_entry = sys_stats_entry(sys);
         if a_sys_stats_entry != SysStat::default_skip_time(&a_sys_stats_entry) {
             diesel::insert_into(sys_stats)
                 .values(a_sys_stats_entry)
@@ -67,7 +63,7 @@ pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
         }
 
         // Disk stats (multiple entries)
-        let a_disk_stats_entries = disk_stats_entry(&sys)
+        let a_disk_stats_entries = disk_stats_entry(sys)
             .into_iter()
             .filter_map(|entry| {
                 if entry != DiskStat::default_skip_time(&entry) {
@@ -86,7 +82,7 @@ pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
         }
 
         // Processes stats (multiple entries)
-        let a_proc_stats_entries = sys_process_entries(&sys)
+        let a_proc_stats_entries = sys_process_entries(sys)
             .into_iter()
             .filter_map(|entry| {
                 if entry != ProcStat::default_skip_time(&entry) {
@@ -105,7 +101,7 @@ pub fn store_entries(pg_connection: &mut PgConnection) -> Result<(), Error> {
         }
 
         // Networks stats (multiple entries)
-        let a_net_stats_entries = net_stats_entries(&sys)
+        let a_net_stats_entries = net_stats_entries(sys)
             .into_iter()
             .filter_map(|entry| {
                 if entry != NetStat::default_skip_time(&entry) {

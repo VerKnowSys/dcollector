@@ -6,6 +6,7 @@ use dcollector::{
 };
 use dotenv::dotenv;
 use std::{env, thread, time::Duration};
+use sysinfo::{System, SystemExt};
 use tracing_subscriber::{fmt, EnvFilter};
 
 
@@ -43,10 +44,16 @@ fn main() {
         env!("CARGO_PKG_VERSION")
     );
 
+    // setup once per runtime:
+    let mut system = System::new_all();
     let mut iteration = 0u128;
     loop {
         iteration += 1;
         debug!("Iteration #{iteration} is starting…");
+
+        // refresh the data every iteration
+        system.refresh_all();
+
         // Continously attempt to make connection with the configured TimescaleDB:
         let mut pg_conn = match establish_postgres_connection() {
             Ok(connection) => connection,
@@ -59,7 +66,7 @@ fn main() {
             }
         };
 
-        match store_entries(&mut pg_conn) {
+        match store_entries(&mut system, &mut pg_conn) {
             Ok(_) => debug!("Iteration #{iteration} was successful."),
             Err(error) => {
                 error!("Iteration #{iteration} failed with error: {error}");
